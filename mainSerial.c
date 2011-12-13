@@ -30,9 +30,9 @@ unsigned char key[12]; //array to hold keys read in through reader
 // Disable watchdog
 WDTCTL = WDTPW + WDTHOLD;
 //disabled as I now just put this code into a loop without initialization via button press
-//P1IE = 0x0c; // P1.3 interrupt enabled
-//P1IES |= 0x0c; // P1.3 Hi/lo edge
-//P1IFG &= ~0x0c; // P1.3 IFG cleared
+//P1IE = 0x04; // P1.3 interrupt enabled
+//P1IES |= 0x04; // P1.3 Hi/lo edge
+//P1IFG &= ~0x04; // P1.3 IFG cleared
 
 // Use 1 MHz DCO factory calibration
 DCOCTL = 0;
@@ -98,23 +98,11 @@ while(1){
 #pragma vector=PORT1_VECTOR
 __interrupt void Port_1(void)
 {	
-	if (P1IFG&0x04){
+	
 	char c;
-	//	char d;
-	//c = getcInt();     // Get a char
-    c = getc();
-    c |= 0x1;
+	c = getc();
     putc(c);
-//    putc(d);
 	P1IFG &= ~0x04; // P1.3 IFG cleared
-	}
-	if (P1IFG&0x08){
-	P1IFG &= ~0x08; // P1.3 IFG cleared
-	int foo = 65;
-	putc(foo);
-	}
-//P1OUT |=0x1; //sets P1.0 high
-//P1OUT &= ~0x1; //Turn off P1.0
 }
 
 unsigned char diffAR(unsigned char a[],const unsigned char b[]){
@@ -125,7 +113,7 @@ unsigned char diffAR(unsigned char a[],const unsigned char b[]){
 	for(i = 0;i<11;i++) {
     putc(b[i]);
     }
-    
+    //A do while loop...WOO...
     do {
     //compare arrays here	
     t=(b[count]==a[count])? 1:0;
