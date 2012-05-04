@@ -1,5 +1,10 @@
-// RFidRead.c
-#include "msp430g2231.h" //change as needed
+ // RFidRead.c
+//VCC
+//GND
+//P1.0 EN
+//P1.4 SOUT
+
+#include "msp430g2211.h" //change as needed
 
 #define keyCount 3
 #define idc 11
@@ -25,6 +30,7 @@ unsigned char diffAR(unsigned char a[],const unsigned char b[]);
 
 void main(void)
 {
+unsigned char match; 
 unsigned char key[12]; //array to hold keys read in through reader
 
 // Disable watchdog
@@ -44,51 +50,40 @@ DCOCTL = CALDCO_1MHZ;
 // Serial in:  P1.4 (BIT2)
 // Bit rate:   2400 (CPU freq / bit rate) 
 serial_setup(BIT1, BIT4, 1000000 / 2400);
-
-//Start of read code.
+//need a delay here so linux doesn't bork out. at least 3 seconds.
+/*//for some reason, this borked the chip....
+Red_On();
+for(delay=0;delay<2;delay++)
+{Wait();}
 puts("\r\nRFID Read...\r\n");
+Red_Off();
+*/
 //if data comes out garbled check the baud rate....try hitting reset as well.
 //_BIS_SR(LPM0_bits + GIE); //disabling for now as I don't need this.
 while(1){
    int i;
    for(i = 0;i<11;i++) {           // Do forever
-   //c = getc();     // Get a char
    key[i]=getc();
-   //putc(c);        // Echo it back
    }
    Red_On();
    //Check for 0F or 04
-   for(i = 0;i<11;i++) {           
+   puts("{\"keycard\":");
+   puts("{\"key\":\"");
+   for(i = 1;i<11;i++) {   //Start with i=1 as i=0 will return char 0xa which is a linefeed...this breaks stuff.         
    putc(key[i]);
    }
-   puts("\r\n");
+   puts("\",");
+   puts("\"match\":\"");
    int x;
    for(x=0;x<keyCount; x++){ 
    if (diffAR(key, ID[x])==1)
-   {puts("\r\nKey matches...\r\n");}
+  	{match=49;
+  	break;}
    else
-	{puts("\r\nKey mismatch...\r\n");}
+	{match=48;}
    }
-//Some test code...figured maybe it would be useful for someone.
-/*
-   for(;;) {           // Do forever
-   c = getc();     // Get a char
-	switch(c)
-	{
-	case 'a' :
-		putc(c);
-		Red_On();
-		break;
-	case 'b' :
-		putc(c);
-		Red_Off();
-		break;
-	default :
-		putc(c);
-		Red_Off();
-	}
-   }
-   */
+	putc(match);
+	puts("\"}}\r\n");
 	Wait(); //wait for a little bit.
 	Red_Off(); //Re-enable RFID reader.
 	}
@@ -109,10 +104,13 @@ unsigned char diffAR(unsigned char a[],const unsigned char b[]){
 	unsigned char diff = 0;
 	unsigned char t = 0;
 	unsigned char count = 0;
+	/*
 	unsigned char i;
+	
 	for(i = 0;i<11;i++) {
     putc(b[i]);
     }
+    */
     //A do while loop...WOO...
     do {
     //compare arrays here	
