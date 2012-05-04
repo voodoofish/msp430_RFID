@@ -109,8 +109,8 @@ Red_On      bis.b   #00000001b,&P1OUT   ; set P1.6 (green on)
 			ret							;
 Red_Off     bic.b   #00000001b,&P1OUT   ; set P1.0 (red on)
             ret
-Wait        mov.w   #31834,R10               ; load R10 with value for delay
-L1          dec.w   R10                     ; decrement R10
+Wait        mov.w   #31834,R11               ; load R10 with value for delay
+L1          dec.w   R11                     ; decrement R10
             jnz     L1                      ; if R10 is not zero jump to L1
             ret
             .end                        ;
