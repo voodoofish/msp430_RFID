@@ -1,4 +1,4 @@
- // RFidRead.c
+// RFidRead.c
 //VCC
 //GND
 //P1.0 EN
@@ -8,7 +8,7 @@
 
 #define keyCount 3
 #define idc 11
-
+//These are 3 of 4 of my keys....you'll need to input yours for this to work, otherwise you get a lot of fail.
 static const unsigned char ID[][12] =
 {
  {0x0A, 0x30, 0x46, 0x30, 0x33, 0x30, 0x32, 0x38, 0x31, 0x33, 0x42, 0x0D} // 0F0302813B
@@ -23,7 +23,7 @@ unsigned getc(void);
 //new functions to enable and disable the Red LED
 void Red_Off(void);
 void Red_On(void);
-void Wait(void);
+void Wait(void);//small delay
 
 //my diff funciton. var 1 is the input key(read in from the rfid reader), var 2 is the diff key from the ID Array.
 unsigned char diffAR(unsigned char a[],const unsigned char b[]);
@@ -39,6 +39,9 @@ WDTCTL = WDTPW + WDTHOLD;
 //P1IE = 0x04; // P1.3 interrupt enabled
 //P1IES |= 0x04; // P1.3 Hi/lo edge
 //P1IFG &= ~0x04; // P1.3 IFG cleared
+
+P1OUT &= ~0x40; //Set P1.6 output to low.
+P1DIR |= 0x40; // Set P1.6 to output direction
 
 // Use 1 MHz DCO factory calibration
 DCOCTL = 0;
@@ -78,6 +81,10 @@ while(1){
    for(x=0;x<keyCount; x++){ 
    if (diffAR(key, ID[x])==1)
   	{match=49;
+  	P1OUT |= 0x40;
+  	Wait();
+  	Wait();
+  	P1OUT &= ~0x40;
   	break;}
    else
 	{match=48;}
